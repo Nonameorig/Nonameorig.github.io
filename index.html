@@ -3,202 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моя Биография</title>
+    <title>Bio Portfolio | Bento Style</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-color: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.5);
+            --bg: #090d16;
+            --card-bg: rgba(25, 33, 50, 0.4);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --text-main: #f3f4f6;
+            --text-sub: #8ea2c1;
+            --accent: #4f46e5;
+            --accent-glow: linear-gradient(135deg, #6366f1, #a855f7);
+            --cyan-glow: #06b6d4;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 20px;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            padding: 30px 15px;
         }
 
-        .container {
-            max-width: 700px;
+        /* Сетка Бенто */
+        .bento-grid {
+            max-width: 680px;
             width: 100%;
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(56, 189, 248, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            animation: fadeIn 0.8s ease-out;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            animation: appAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .profile-header {
+        .grid-item {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Главная большая карточка профиля */
+        .profile-card {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            margin-bottom: 30px;
+            padding: 35px 24px;
+        }
+
+        .avatar-box {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 16px;
+        }
+
+        .avatar-glow {
+            position: absolute;
+            inset: -4px;
+            background: var(--accent-glow);
+            border-radius: 50%;
+            filter: blur(8px);
+            opacity: 0.75;
+            animation: pulseGlow 3s infinite alternate;
         }
 
         .avatar {
-            width: 120px;
-            height: 120px;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #111827;
             border-radius: 50%;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            margin: 0 auto 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 48px;
-            box-shadow: 0 0 25px var(--accent-glow);
+            font-size: 38px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(to right, #fff, var(--accent-color));
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            background: linear-gradient(to right, #ffffff, #93c5fd);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            color: var(--accent-color);
-            font-size: 1.1rem;
-            font-weight: 500;
+        .status-tag {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 12px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        /* Карточка "О себе" */
+        .about-card {
+            grid-column: span 2;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            color: var(--text-sub);
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
-        .section {
-            margin-bottom: 30px;
-        }
-
-        h2 {
-            font-size: 1.4rem;
-            margin-bottom: 12px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 6px;
-            color: #fff;
-        }
-
-        p {
-            color: var(--text-muted);
+        .about-card p {
+            color: #d1d5db;
             font-size: 1.05rem;
+            line-height: 1.6;
         }
 
-        .skills-grid {
+        /* Навыки / Теги */
+        .skills-card {
+            grid-column: span 2;
+        }
+
+        .tags-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 12px;
         }
 
-        .skill-tag {
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--accent-color);
+        .tag {
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .skill-tag:hover {
-            background: var(--accent-color);
-            color: var(--bg-color);
-            box-shadow: 0 0 15px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-
-        .links {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: transparent;
-            color: #fff;
-            text-decoration: none;
             border-radius: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e5e7eb;
             transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background: var(--accent-color);
-            color: var(--bg-color);
-            border: none;
+        .tag:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #fff;
         }
 
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        /* Интерактивные Ссылки-Кнопки */
+        .link-card {
+            grid-column: span 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-decoration: none;
+            color: inherit;
         }
 
-        .btn-primary:hover {
-            box-shadow: 0 0 20px var(--accent-glow);
+        .link-card.tg-theme:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .link-icon {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 480px) {
-            .container { padding: 25px; }
-            h1 { font-size: 2rem; }
+        .link-info h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .link-info p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .arrow-top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .link-card:hover .arrow-top-right {
+            transform: translate(2px, -2px) scale(1.1);
+            color: var(--text-main);
+        }
+
+        /* Анимации */
+        @keyframes appAppear {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            from { transform: scale(0.98); opacity: 0.6; }
+            to { transform: scale(1.02); opacity: 0.85; }
+        }
+
+        /* Мобильный адаптив */
+        @media (max-width: 500px) {
+            .link-card {
+                grid-column: span 2;
+            }
+            .bento-grid {
+                gap: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header class="profile-header">
-            <!-- Эмодзи вместо фотки, пока не загрузишь свою -->
-            <div class="avatar">👋</div>
+    <div class="bento-grid">
+        
+        <!-- Карточка 1: Профиль -->
+        <div class="grid-item profile-card">
+            <div class="avatar-box">
+                <div class="avatar-glow"></div>
+                <div class="avatar">⚡</div>
+            </div>
             <h1>Твое Имя</h1>
-            <p class="subtitle">Web Developer / Твоя Роль</p>
-        </header>
-
-        <section class="section">
-            <h2>О себе</h2>
-            <p>Привет! Здесь будет твоя краткая биография. Расскажи, чем ты занимаешься, что тебя вдохновляет и какие крутые штуки ты создаешь. Код полностью готов к редактированию — просто открой этот файл и замени текст на свой.</p>
-        </section>
-
-        <section class="section">
-            <h2>Навыки</h2>
-            <div class="skills-grid">
-                <span class="skill-tag">HTML5 & CSS3</span>
-                <span class="skill-tag">JavaScript</span>
-                <span class="skill-tag">Git / GitHub</span>
-                <span class="skill-tag">UI/UX Design</span>
-                <span class="skill-tag">Творчество</span>
+            <div class="status-tag">
+                <span class="status-dot"></span> Открыт к предложениям
             </div>
-        </section>
+        </div>
 
-        <section class="section" style="margin-bottom: 0;">
-            <h2>Контакты</h2>
-            <p style="margin-bottom: 15px;">Давай создадим что-нибудь крутое вместе! Свяжись со мной в соцсетях:</p>
-            <div class="links">
-                <a href="https://t.me" target="_blank" class="btn btn-primary">Telegram</a>
-                <a href="https://github.com" target="_blank" class="btn">GitHub</a>
+        <!-- Карточка 2: Биография -->
+        <div class="grid-item about-card">
+            <div class="section-title">Биография</div>
+            <p>Создаю цифровые интерфейсы, увлекаюсь веб-технологиями и дизайном. Здесь может быть описание твоих главных интересов, проектов или того, чем ты занимаешься в свободное время.</p>
+        </div>
+
+        <!-- Карточка 3: Навыки -->
+        <div class="grid-item skills-card">
+            <div class="section-title">Технологии & Стэк</div>
+            <div class="tags-container">
+                <span class="tag">Frontend</span>
+                <span class="tag">UI/UX Layout</span>
+                <span class="tag">GitHub Host</span>
+                <span class="tag">Bento Design</span>
+                <span class="tag">JavaScript</span>
             </div>
-        </section>
+        </div>
+
+        <!-- Карточка 4: Ссылка на Telegram -->
+        <a href="https://t.me" target="_blank" class="grid-item link-card tg-theme">
+            <div class="arrow-top-right">↗</div>
+            <div class="link-icon">✈️</div>
+            <div class="link-info">
+                <h3>Telegram</h3>
+                <p>Написать мне в личные сообщения</p>
+            </div>
+        </a>
+
+        <!-- Карточка 5: Ссылка на GitHub -->
+        <a href="https://github.com" target="_blank" class="grid-item link-card">
+            <div class="arrow-top-right">↗</div>
+            <div class="link-icon">📁</div>
+            <div class="link-info">
+                <h3>GitHub</h3>
+                <p>Мои исходники и проекты</p>
+            </div>
+        </a>
+
     </div>
 
 </body>

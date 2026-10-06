@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio Portfolio | Bento Style</title>
+    <title>Bio Portfolio | Liquid Crimson</title>
     <style>
         :root {
-            --bg: #090d16;
-            --card-bg: rgba(25, 33, 50, 0.4);
-            --card-border: rgba(255, 255, 255, 0.06);
-            --text-main: #f3f4f6;
-            --text-sub: #8ea2c1;
-            --accent: #4f46e5;
-            --accent-glow: linear-gradient(135deg, #6366f1, #a855f7);
-            --cyan-glow: #06b6d4;
+            --bg-color: #0b0204;
+            --glass-bg: rgba(28, 6, 10, 0.45);
+            --glass-border: rgba(255, 51, 85, 0.15);
+            --glass-highlight: rgba(255, 255, 255, 0.08);
+            --text-main: #fff5f6;
+            --text-sub: #bfa1a5;
+            --crimson: #ff1e46;
+            --crimson-glow: linear-gradient(135deg, #ff1e46, #99001a);
+            --ruby-shadow: rgba(255, 30, 70, 0.25);
         }
 
         * {
@@ -24,166 +25,201 @@
         }
 
         body {
-            background-color: var(--bg);
+            background-color: var(--bg-color);
+            /* Жидкие органические световые пятна на фоне */
             background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+                radial-gradient(at 10% 20%, rgba(255, 30, 70, 0.12) 0px, transparent 45%),
+                radial-gradient(at 90% 80%, rgba(153, 0, 26, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(20, 4, 7, 1) 0px, transparent 100%);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 30px 15px;
+            padding: 40px 15px;
+            overflow-x: hidden;
         }
 
-        /* Сетка Бенто */
+        /* Bento сетка */
         .bento-grid {
-            max-width: 680px;
+            max-width: 660px;
             width: 100%;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            animation: appAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            gap: 18px;
+            animation: floatIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .grid-item {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 24px;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        /* Эффект жидкого глянцевого стекла */
+        .glass-card {
+            background: linear-gradient(135deg, var(--glass-highlight), transparent 60%), var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 26px;
             position: relative;
             overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            /* Внутренний блик для эффекта объема стекла */
+            box-shadow: 
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                inset 0 10px 20px rgba(255, 51, 85, 0.05),
+                0 15px 35px rgba(0, 0, 0, 0.5);
         }
 
-        .grid-item:hover {
-            transform: translateY(-4px);
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.1);
+        /* Глянцевый блик при наведении */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: rotate(45deg);
+            transition: 0.8s;
+            opacity: 0;
         }
 
-        /* Главная большая карточка профиля */
+        .glass-card:hover::before {
+            opacity: 1;
+            transform: translate(50%, 50%) rotate(45deg);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(255, 30, 70, 0.4);
+            box-shadow: 
+                inset 0 1px 2px rgba(255, 255, 255, 0.3),
+                0 15px 30px rgba(0, 0, 0, 0.6), 
+                0 0 25px var(--ruby-shadow);
+        }
+
+        /* Карточка профиля */
         .profile-card {
             grid-column: span 2;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding: 35px 24px;
+            padding: 40px 24px;
         }
 
-        .avatar-box {
+        .avatar-container {
             position: relative;
-            width: 100px;
-            height: 100px;
-            margin-bottom: 16px;
+            width: 105px;
+            height: 105px;
+            margin-bottom: 20px;
         }
 
-        .avatar-glow {
+        /* "Жидкое" свечение вокруг авы */
+        .liquid-glow {
             position: absolute;
-            inset: -4px;
-            background: var(--accent-glow);
-            border-radius: 50%;
-            filter: blur(8px);
-            opacity: 0.75;
-            animation: pulseGlow 3s infinite alternate;
+            inset: -6px;
+            background: var(--crimson-glow);
+            border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+            filter: blur(10px);
+            opacity: 0.8;
+            animation: liquidMorf 6s ease-in-out infinite alternate;
         }
 
         .avatar {
             position: relative;
             width: 100%;
             height: 100%;
-            background: #111827;
+            background: #120306;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 38px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-size: 40px;
+            border: 2px solid rgba(255, 30, 70, 0.3);
+            box-shadow: inset 0 0 15px rgba(255, 30, 70, 0.2);
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
             letter-spacing: -0.5px;
-            margin-bottom: 6px;
-            background: linear-gradient(to right, #ffffff, #93c5fd);
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 40%, #ff8fa3);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .status-tag {
+        .status {
             font-size: 0.85rem;
             color: var(--text-sub);
-            background: rgba(255, 255, 255, 0.05);
-            padding: 4px 12px;
+            background: rgba(255, 30, 70, 0.08);
+            padding: 5px 14px;
             border-radius: 100px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 30, 70, 0.2);
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .status-dot {
-            width: 7px;
-            height: 7px;
-            background-color: #10b981;
+            width: 8px;
+            height: 8px;
+            background-color: var(--crimson);
             border-radius: 50%;
-            box-shadow: 0 0 10px #10b981;
+            box-shadow: 0 0 12px var(--crimson);
+            animation: pulseDot 2s infinite;
         }
 
-        /* Карточка "О себе" */
+        /* Текст */
         .about-card {
             grid-column: span 2;
         }
 
-        .section-title {
-            font-size: 0.9rem;
+        .label {
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-sub);
-            margin-bottom: 10px;
+            letter-spacing: 2px;
+            color: var(--crimson);
+            margin-bottom: 12px;
             font-weight: 700;
         }
 
-        .about-card p {
-            color: #d1d5db;
+        p {
+            color: var(--text-sub);
             font-size: 1.05rem;
             line-height: 1.6;
         }
 
-        /* Навыки / Теги */
+        /* Навыки / Стэк */
         .skills-card {
             grid-column: span 2;
         }
 
-        .tags-container {
+        .chips {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 10px;
         }
 
-        .tag {
+        .chip {
             font-size: 0.85rem;
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 6px 14px;
-            border-radius: 12px;
-            color: #e5e7eb;
+            border: 1px solid rgba(255, 51, 85, 0.1);
+            padding: 7px 15px;
+            border-radius: 14px;
+            color: #fce7eb;
             transition: all 0.3s ease;
         }
 
-        .tag:hover {
-            background: rgba(99, 102, 241, 0.15);
-            border-color: rgba(99, 102, 241, 0.4);
+        .chip:hover {
+            background: rgba(255, 30, 70, 0.15);
+            border-color: var(--crimson);
+            box-shadow: 0 0 15px rgba(255, 30, 70, 0.15);
             color: #fff;
         }
 
-        /* Интерактивные Ссылки-Кнопки */
-        .link-card {
+        /* Кнопки-ссылки */
+        .link-box {
             grid-column: span 1;
             display: flex;
             flex-direction: column;
@@ -192,60 +228,60 @@
             color: inherit;
         }
 
-        .link-card.tg-theme:hover {
-            border-color: rgba(6, 182, 212, 0.4);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.1);
-        }
-
-        .link-icon {
-            font-size: 1.6rem;
-            margin-bottom: 20px;
-        }
-
-        .link-info h3 {
-            font-size: 1.15rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .link-info p {
-            font-size: 0.85rem;
-            color: var(--text-sub);
-        }
-
-        .arrow-top-right {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: var(--text-sub);
-            font-size: 0.9rem;
+        .icon {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            display: inline-block;
             transition: transform 0.3s ease;
         }
 
-        .link-card:hover .arrow-top-right {
-            transform: translate(2px, -2px) scale(1.1);
-            color: var(--text-main);
+        .link-box:hover .icon {
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        .link-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .link-box:hover .arrow {
+            transform: translate(3px, -3px);
+            color: var(--crimson);
         }
 
         /* Анимации */
-        @keyframes appAppear {
-            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+        @keyframes floatIn {
+            from { opacity: 0; transform: scale(0.97) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        @keyframes pulseGlow {
-            from { transform: scale(0.98); opacity: 0.6; }
-            to { transform: scale(1.02); opacity: 0.85; }
+        @keyframes liquidMorf {
+            0% { border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%; }
+            100% { border-radius: 60% 40% 40% 60% / 55% 55% 45% 45%; }
         }
 
-        /* Мобильный адаптив */
-        @media (max-width: 500px) {
-            .link-card {
-                grid-column: span 2;
-            }
-            .bento-grid {
-                gap: 12px;
-            }
+        @keyframes pulseDot {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Адаптив для телефонов */
+        @media (max-width: 520px) {
+            .link-box { grid-column: span 2; }
+            .bento-grid { gap: 14px; }
+            h1 { font-size: 1.9rem; }
         }
     </style>
 </head>
@@ -254,56 +290,34 @@
     <div class="bento-grid">
         
         <!-- Карточка 1: Профиль -->
-        <div class="grid-item profile-card">
-            <div class="avatar-box">
-                <div class="avatar-glow"></div>
-                <div class="avatar">⚡</div>
+        <div class="glass-card profile-card">
+            <div class="avatar-container">
+                <div class="liquid-glow"></div>
+                <div class="avatar">🍷</div>
             </div>
             <h1>Твое Имя</h1>
-            <div class="status-tag">
-                <span class="status-dot"></span> Открыт к предложениям
+            <div class="status">
+                <span class="status-dot"></span> Online & Active
             </div>
         </div>
 
         <!-- Карточка 2: Биография -->
-        <div class="grid-item about-card">
-            <div class="section-title">Биография</div>
-            <p>Создаю цифровые интерфейсы, увлекаюсь веб-технологиями и дизайном. Здесь может быть описание твоих главных интересов, проектов или того, чем ты занимаешься в свободное время.</p>
+        <div class="glass-card about-card">
+            <div class="label">Биография</div>
+            <p>Добро пожаловать. Это моё личное пространство в сети, оформленное в стиле жидкого рубинового стекла. Я увлекаюсь кастомизацией интерфейсов, разработкой и созданием уникального цифрового контента.</p>
         </div>
 
         <!-- Карточка 3: Навыки -->
-        <div class="grid-item skills-card">
-            <div class="section-title">Технологии & Стэк</div>
-            <div class="tags-container">
-                <span class="tag">Frontend</span>
-                <span class="tag">UI/UX Layout</span>
-                <span class="tag">GitHub Host</span>
-                <span class="tag">Bento Design</span>
-                <span class="tag">JavaScript</span>
+        <div class="glass-card skills-card">
+            <div class="label">Сферы интересов</div>
+            <div class="chips">
+                <span class="chip">Server Dev</span>
+                <span class="chip">Liquid UI</span>
+                <span class="chip">Crimson Aesthetic</span>
+                <span class="chip">Configurations</span>
+                <span class="chip">GitHub Pages</span>
             </div>
         </div>
 
-        <!-- Карточка 4: Ссылка на Telegram -->
-        <a href="https://t.me" target="_blank" class="grid-item link-card tg-theme">
-            <div class="arrow-top-right">↗</div>
-            <div class="link-icon">✈️</div>
-            <div class="link-info">
-                <h3>Telegram</h3>
-                <p>Написать мне в личные сообщения</p>
-            </div>
-        </a>
-
-        <!-- Карточка 5: Ссылка на GitHub -->
-        <a href="https://github.com" target="_blank" class="grid-item link-card">
-            <div class="arrow-top-right">↗</div>
-            <div class="link-icon">📁</div>
-            <div class="link-info">
-                <h3>GitHub</h3>
-                <p>Мои исходники и проекты</p>
-            </div>
-        </a>
-
-    </div>
-
-</body>
-</html>
+        <!-- Карточка 4: Telegram -->
+        <a href="https://t.me" target="_blank" class="glass-card link-box">

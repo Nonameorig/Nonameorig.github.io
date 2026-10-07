@@ -17,7 +17,7 @@
             --ruby-shadow: rgba(255, 30, 70, 0.2);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-        
+
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
@@ -30,7 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* Интерактивный живой задний фон */
         .bg-blur-sphere {
             position: absolute;
             border-radius: 50%;
@@ -52,7 +51,6 @@
             z-index: 2;
         }
 
-        /* Эффект жидкого глянцевого стекла */
         .glass-card {
             background: linear-gradient(135deg, var(--glass-highlight), transparent 60%), var(--glass-bg);
             backdrop-filter: blur(25px) saturate(170%);
@@ -71,7 +69,6 @@
             box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 15px 30px rgba(0, 0, 0, 0.7), 0 0 25px var(--ruby-shadow);
         }
 
-        /* Профиль */
         .profile-card { grid-column: span 2; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px 24px; }
         .avatar-container { position: relative; width: 105px; height: 105px; margin-bottom: 20px; }
         .liquid-glow {
@@ -84,7 +81,6 @@
             display: flex; justify-content: center; align-items: center; font-size: 40px; border: 2px solid rgba(255, 30, 70, 0.3);
         }
 
-        /* Переливающийся анимированный никнейм */
         h1 {
             font-size: 2.5rem;
             font-weight: 800;
@@ -103,8 +99,7 @@
         p { color: var(--text-sub); font-size: 1.05rem; line-height: 1.6; }
         .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .chip { font-size: 0.85rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 51, 85, 0.1); padding: 7px 15px; border-radius: 14px; color: #fce7eb; }
-        
-        /* Кнопки-ссылки */
+
         .link-box { grid-column: span 1; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; color: inherit; min-height: 140px; }
         .icon { font-size: 1.8rem; margin-bottom: 15px; transition: transform 0.3s ease; }
         .link-box:hover .icon { transform: scale(1.15) rotate(-5deg); }
@@ -112,28 +107,34 @@
         .arrow { position: absolute; top: 24px; right: 24px; color: rgba(255, 255, 255, 0.3); font-size: 0.95rem; transition: all 0.3s ease; }
         .link-box:hover .arrow { transform: translate(3px, -3px); color: var(--crimson); }
 
-        /* Кастомный Спотифай плеер */
-        .spotify-card { padding: 12px; display: flex; justify-content: center; align-items: center; min-height: 100px; }
-        .spotify-card iframe { border-radius: 20px; width: 100%; height: 80px; border: none; }
+        /* Spotify */
+        .spotify-card { padding: 12px; display: flex; flex-direction: column; gap: 10px; justify-content: center; align-items: center; min-height: 100px; }
+        .spotify-card iframe { border-radius: 20px; width: 100%; height: 152px; border: none; }
+        .spotify-fallback {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(255, 30, 70, 0.4);
+            transition: color 0.3s;
+        }
+        .spotify-fallback:hover { color: var(--crimson); }
 
-        /* Тайминги анимаций */
         @keyframes floatIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes liquidMorf { 0% { border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%; } 100% { border-radius: 60% 40% 40% 60% / 55% 55% 45% 45%; } }
         @keyframes gradientText { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
         @keyframes floatingBg { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, 30px) scale(1.1); } }
-        
+
         @media (max-width: 520px) { .link-box { grid-column: span 2; } .bento-grid { gap: 14px; } }
     </style>
 </head>
 <body>
 
-    <!-- Шары заднего фона -->
     <div class="bg-blur-sphere sphere-1"></div>
     <div class="bg-blur-sphere sphere-2"></div>
 
     <div class="bento-grid">
-        
-        <!-- Карточка 1: Профиль -->
+
+        <!-- Профиль -->
         <div class="glass-card profile-card">
             <div class="avatar-container">
                 <div class="liquid-glow"></div>
@@ -145,41 +146,56 @@
             </div>
         </div>
 
-        <!-- Карточка 2: Биография -->
+        <!-- Биография -->
         <div class="glass-card about-card">
             <div class="label">Биография</div>
-            <p>Добро пожаловать. Это моё личное пространство в сети, оформленное в стиле жидкого рубинового стекла. Я увлекаюсь кастомизацией интерфейсов, разработкой и созданием уникального цифрового контента.</p>
+            <p>
+                Привет! Я — разработчик Minecraft-плагинов с опытом более 2 лет.
+                Пишу на Java, глубоко разбираюсь в архитектуре Bukkit/Spigot/Paper,
+                умею работать с сетевыми пакетами через Netty и настраивать конфиги любой сложности.
+                Специализируюсь на создании производительных и чистых решений для серверов.
+            </p>
         </div>
 
-        <!-- Карточка 3: Навыки -->
+        <!-- Навыки -->
         <div class="glass-card skills-card">
-            <div class="label">Сферы интересов</div>
+            <div class="label">Стек и навыки</div>
             <div class="chips">
-                <span class="chip">Server Dev</span>
-                <span class="chip">Liquid UI</span>
-                <span class="chip">Crimson Aesthetic</span>
-                <span class="chip">Configurations</span>
-                <span class="chip">GitHub Pages</span>
+                <span class="chip">Java</span>
+                <span class="chip">Minecraft Plugins</span>
+                <span class="chip">Bukkit / Spigot / Paper</span>
+                <span class="chip">Netty Packets</span>
+                <span class="chip">Configurations (YAML/JSON)</span>
+                <span class="chip">NMS / Protocol</span>
+                <span class="chip">Gradle / Maven</span>
             </div>
         </div>
 
-        <!-- Карточка 4: Spotify плеер (вставлен стандартный трек, можно заменить) -->
+        <!-- Spotify (рабочий embed) -->
         <div class="glass-card spotify-card">
-            <iframe src="https://open.spotify.com/track/2kPuQ8BYGdJglM9aFX9pA0?si=360e0e50b67b4d6e" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe
+                src="https://open.spotify.com/embed/track/2kPuQ8BYGdJglM9aFX9pA0?utm_source=generator&theme=0"
+                allowfullscreen
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy">
+            </iframe>
+            <a class="spotify-fallback" href="https://open.spotify.com/track/2kPuQ8BYGdJglM9aFX9pA0" target="_blank" rel="noopener">
+                Открыть трек в Spotify ↗
+            </a>
         </div>
 
-        <!-- Карточка 5: Discord -->
-        <a href="https://discord.com" target="_blank" class="glass-card link-box">
+        <!-- Discord студии -->
+        <a href="https://discord.gg/ВАШ_ИНВАЙТ" target="_blank" rel="noopener" class="glass-card link-box">
             <div class="arrow">↗</div>
             <div class="icon">💬</div>
             <div>
-                <div class="link-title">Discord</div>
-                <p>Добавить меня в друзья</p>
+                <div class="link-title">Discord студии</div>
+                <p>Плагины New Minecraft — заходи!</p>
             </div>
         </a>
 
-        <!-- Карточка 6: GitHub -->
-        <a href="https://github.com" target="_blank" class="glass-card link-box">
+        <!-- GitHub -->
+        <a href="https://github.com" target="_blank" rel="noopener" class="glass-card link-box">
             <div class="arrow">↗</div>
             <div class="icon">📁</div>
             <div>

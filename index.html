@@ -107,7 +107,6 @@
             box-shadow: 0 0 8px var(--accent);
         }
 
-        /* === Профиль === */
         .profile {
             grid-column: span 6;
             display: grid;
@@ -163,7 +162,6 @@
             letter-spacing: 0.06em;
         }
 
-        /* === Био === */
         .bio { grid-column: span 6; }
         .bio p {
             font-size: 14.5px;
@@ -177,7 +175,6 @@
             font-size: 13px;
         }
 
-        /* === Стек === */
         .stack { grid-column: span 3; }
         .chips { display: flex; flex-wrap: wrap; gap: 6px; }
         .chip {
@@ -196,7 +193,6 @@
             background: rgba(255, 30, 70, 0.06);
         }
 
-        /* === Статы === */
         .stats {
             grid-column: span 3;
             display: grid;
@@ -228,7 +224,6 @@
             color: var(--muted);
         }
 
-        /* === Spotify === */
         .music { grid-column: span 6; padding: 16px; }
         .music .label { padding-left: 6px; }
         .music iframe {
@@ -252,7 +247,6 @@
         }
         .music .fallback:hover { color: var(--accent); }
 
-        /* === Ссылки === */
         .link {
             grid-column: span 3;
             text-decoration: none;
@@ -294,7 +288,6 @@
             letter-spacing: 0.04em;
         }
 
-        /* === Футер === */
         .footer {
             grid-column: span 6;
             display: flex;
@@ -338,10 +331,9 @@
 
 <div class="wrap">
 
-    <!-- Профиль -->
     <section class="card profile">
         <div class="avatar">
-            <img src="icon.png" alt="avatar" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend','<div style=\'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;z-index:2;color:#ff1e46\'>◆</div>')">
+            <img src="logo.png" alt="logo" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend','<div style=\'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;z-index:2;color:#ff1e46\'>◆</div>')">
         </div>
         <div class="profile-info">
             <h1><span class="at">@</span>Noname</h1>
@@ -349,7 +341,6 @@
         </div>
     </section>
 
-    <!-- Био -->
     <section class="card bio">
         <div class="label">about</div>
         <p>
@@ -362,7 +353,6 @@
         </p>
     </section>
 
-    <!-- Стек -->
     <section class="card stack">
         <div class="label">stack</div>
         <div class="chips">
@@ -378,7 +368,6 @@
         </div>
     </section>
 
-    <!-- Статы -->
     <section class="card stats">
         <div class="stat">
             <div class="num">2<span>+</span></div>
@@ -398,45 +387,41 @@
         </div>
     </section>
 
-    <!-- Spotify -->
     <section class="card music">
         <div class="label">now playing</div>
         <iframe
-            src="https://open.spotify.com/embed/track/2kPuQ8BYGdJglM9aFX9pA0?utm_source=generator&theme=0"
+            src="https://open.spotify.com/embed/track/3mMXGxnS6OFkKtqzSYgL0T?utm_source=generator&theme=0"
             allowfullscreen
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy">
         </iframe>
-        <a class="fallback" href="https://open.spotify.com/track/2kPuQ8BYGdJglM9aFX9pA0" target="_blank" rel="noopener">
+        <a class="fallback" href="https://open.spotify.com/track/3mMXGxnS6OFkKtqzSYgL0T" target="_blank" rel="noopener">
             open in spotify ↗
         </a>
     </section>
 
-    <!-- Discord студии -->
-    <a href="https://discord.gg/ВАШ_ИНВАЙТ" target="_blank" rel="noopener" class="card link">
+    <a href="https://dsc.gg/nonamestudio" target="_blank" rel="noopener" class="card link">
         <div class="top">
             <div class="icon">💬</div>
             <div class="arr">↗</div>
         </div>
         <div>
             <div class="name">Discord студии</div>
-            <div class="desc">// New Minecraft Plugins</div>
+            <div class="desc">// dsc.gg/nonamestudio</div>
         </div>
     </a>
 
-    <!-- GitHub -->
-    <a href="https://github.com" target="_blank" rel="noopener" class="card link">
+    <a href="https://github.com/Nonameorig" target="_blank" rel="noopener" class="card link">
         <div class="top">
             <div class="icon">📁</div>
             <div class="arr">↗</div>
         </div>
         <div>
             <div class="name">GitHub</div>
-            <div class="desc">// repositories & source</div>
+            <div class="desc">// github.com/Nonameorig</div>
         </div>
     </a>
 
-    <!-- Футер -->
     <div class="footer">
         <span>noname.dev — portfolio v2.0</span>
         <span>build stable<span class="blink"></span></span>

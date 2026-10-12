@@ -1,409 +1,581 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noname — Minecraft Plugin Developer</title>
-    <style>
-        :root {
-            --bg: #0a0407;
-            --bg-soft: #120609;
-            --line: rgba(255, 40, 75, 0.14);
-            --line-strong: rgba(255, 40, 75, 0.35);
-            --text: #f4e9eb;
-            --muted: #8d7278;
-            --accent: #ff1e46;
-            --accent-dim: #7a0f22;
-            --mono: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
-            --sans: "Inter", system-ui, -apple-system, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="robots" content="index,follow">
+<meta name="description" content="Разрабатываю плагины для Minecraft более 2 лет. Пишу на Java, работаю с Bukkit / Spigot / Paper, настраиваю конфиги любой сложности и умею работать с сетевыми пакетами через Netty. За это время выпустил 45+ плагинов, которые работали на серверах с пиком до 250 игроков онлайн. Делаю упор на производительность, чистый код и стабильность под нагрузкой.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="Noname">
+<meta property="og:description" content="Разрабатываю плагины для Minecraft более 2 лет. Пишу на Java, работаю с Bukkit / Spigot / Paper.">
+<meta property="og:image" content="https://raw.githubusercontent.com/Nonameorig/Nonameorig.github.io/main/logo.png">
+<title>Noname</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: url(https://r2-bios.e-z.host/cafc3ee0-ae20-4bb2-86f4-f1106dda1a67/5sugk0xvgh.cur) 0 0, auto !important;
+}
+::selection {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+.bg-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -5;
+}
+main {
+    display: flex;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+.container {
+    max-width: 42rem;
+    width: 100%;
+    margin: auto;
+    padding: 0 1rem;
+}
+/* Скрытый заголовок как в оригинале */
+.click-hint {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.875rem;
+    display: none;
+}
+.card-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.card {
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    border-radius: 0.4rem;
+}
+.banner {
+    object-fit: cover;
+    width: 100%;
+    height: 8rem;
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+    border-bottom: none;
+    border-top-left-radius: 0.4rem;
+    border-top-right-radius: 0.4rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: block;
+}
+.main-box {
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+    border-top: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-bottom-right-radius: 0.4rem;
+    border-bottom-left-radius: 0.4rem;
+}
+.views {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+.views svg {
+    width: 1rem;
+    height: 1rem;
+    fill: #ffffff;
+}
+.views p {
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+.profile-col {
+    display: flex;
+    flex-direction: column;
+}
+.avatar-wrap {
+    margin-top: -3.2rem;
+    transform: translateY(-3.2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.avatar {
+    height: 120px;
+    width: 120px;
+    border-radius: 50%;
+    position: relative;
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+    object-fit: cover;
+    background-color: #000;
+}
+.name-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.5rem auto 0.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.name {
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 32px;
+    text-align: center;
+    color: #ffffff;
+    word-break: break-word;
+}
+.description {
+    text-align: center;
+    font-size: 1rem;
+    word-break: break-word;
+    margin-top: 0.5rem;
+    color: #ffffff;
+    line-height: 1.6;
+}
+.socials {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    list-style: none;
+    padding: 0;
+}
+.social-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.social-item a {
+    padding: 0.5rem;
+    display: flex;
+    transition: 300ms;
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 9999px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+}
+.social-item a:hover {
+    filter: brightness(0.5);
+}
+.social-item svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    filter: drop-shadow(0 0 3.5px #ffffff);
+    fill: #ffffff;
+}
+.link-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    list-style: none;
+    padding: 0;
+    margin-top: 0.75rem;
+}
+@media (min-width: 768px) {
+    .link-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.link-item {
+    position: relative;
+    display: flex;
+    border-radius: 0.4rem;
+}
+.link-item a {
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    transition: 300ms;
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 0.4rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    text-decoration: none;
+}
+.link-item a:hover {
+    filter: brightness(1.25);
+}
+.link-left {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: center;
+    max-width: 80%;
+    width: 100%;
+}
+.link-icon-box {
+    padding: 0.5rem;
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 0.4rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+}
+.link-icon-box svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    filter: drop-shadow(0 0 3.5px #ffffff);
+    fill: #ffffff;
+}
+.link-text {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+    overflow: hidden;
+}
+.link-text h1 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #ffffff;
+}
+.link-text p {
+    font-size: 0.875rem;
+    filter: brightness(0.75);
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #ffffff;
+}
+.link-arrow {
+    width: 1.75rem;
+    height: 1.75rem;
+    fill: #ffffff;
+    transition: 300ms;
+}
+.link-item a:hover .link-arrow {
+    transform: translateX(0.25rem);
+}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
+/* ====== Плеер ====== */
+.player-box {
+    padding: 0.75rem;
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 0.4rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin-top: 0.75rem;
+}
+.player {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.player-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.player-header img {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.4rem;
+    object-fit: cover;
+    border: 1px solid #ffffff;
+    flex-shrink: 0;
+}
+.player-title {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    word-break: break-word;
+}
+.player-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.player-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.player-time {
+    color: #ffffff;
+    font-size: 0.8rem;
+    min-width: 2.8rem;
+    text-align: center;
+}
+.player-progress-container {
+    flex: 1;
+    height: 6px;
+    background-color: #000000;
+    border: 1px solid #ffffff;
+    border-radius: 9999px;
+    position: relative;
+    cursor: pointer;
+    overflow: visible;
+}
+.player-progress-filled {
+    height: 100%;
+    width: 0%;
+    background-color: #ffffff;
+    border-radius: 9999px;
+    transition: width 0.1s linear;
+}
+.player-progress-indicator {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 4px rgba(255,255,255,0.6);
+}
+.player-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.25rem;
+}
+.player-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    transition: 200ms;
+}
+.player-btn:hover {
+    filter: brightness(0.7);
+}
+.player-btn svg {
+    width: 1.8rem;
+    height: 1.8rem;
+    fill: #ffffff;
+}
+.player-btn.play-pause svg {
+    width: 2.2rem;
+    height: 2.2rem;
+}
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--sans);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 48px 20px;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(600px 400px at 20% 0%, rgba(255, 30, 70, 0.10), transparent 70%),
-                radial-gradient(700px 500px at 100% 100%, rgba(255, 30, 70, 0.07), transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-            opacity: 0.05;
-            mix-blend-mode: overlay;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .wrap {
-            width: 100%;
-            max-width: 720px;
-            position: relative;
-            z-index: 2;
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 14px;
-            animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-        }
-
-        .card {
-            position: relative;
-            background: linear-gradient(180deg, var(--bg-soft), var(--bg));
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            padding: 20px 22px 20px 24px;
-            transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
-            overflow: hidden;
-        }
-        .card::before {
-            content: "";
-            position: absolute;
-            left: 0; top: 14px; bottom: 14px;
-            width: 2px;
-            background: linear-gradient(180deg, var(--accent), transparent);
-            opacity: 0.55;
-            transition: opacity 0.25s ease;
-        }
-        .card:hover { border-color: var(--line-strong); background: #150709; }
-        .card:hover::before { opacity: 1; }
-
-        .label {
-            font-family: var(--mono);
-            font-size: 10px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .label::before {
-            content: "";
-            width: 5px; height: 5px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent);
-        }
-
-        .profile {
-            grid-column: span 6;
-            display: grid;
-            grid-template-columns: auto 1fr;
-            align-items: center;
-            gap: 22px;
-            padding: 24px;
-        }
-
-        .avatar {
-            width: 84px; height: 84px;
-            border-radius: 50%;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .avatar img {
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            border: 1px solid var(--line-strong);
-            position: relative;
-            z-index: 2;
-            background: #1a070c;
-        }
-        .avatar::after {
-            content: "";
-            position: absolute;
-            inset: -6px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 30, 70, 0.35), transparent 70%);
-            filter: blur(10px);
-            z-index: 1;
-        }
-
-        .profile-info h1 {
-            font-family: var(--sans);
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            line-height: 1;
-            margin-bottom: 8px;
-            background: linear-gradient(90deg, #ffffff, #ff8fa3, #ff1e46, #ffffff);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            color: transparent;
-            animation: shine 4s linear infinite;
-        }
-        .profile-info .role {
-            font-family: var(--mono);
-            font-size: 11px;
-            color: var(--muted);
-            letter-spacing: 0.06em;
-        }
-
-        .bio { grid-column: span 6; }
-        .bio p {
-            font-size: 14.5px;
-            line-height: 1.7;
-            color: #c9b6bb;
-        }
-        .bio p strong { color: var(--text); font-weight: 600; }
-        .bio .hl {
-            color: var(--accent);
-            font-family: var(--mono);
-            font-size: 13px;
-        }
-
-        .stack { grid-column: span 3; }
-        .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-        .chip {
-            font-family: var(--mono);
-            font-size: 11px;
-            color: #d9c4c9;
-            padding: 5px 9px;
-            border: 1px solid var(--line);
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.015);
-            transition: all 0.2s ease;
-        }
-        .chip:hover {
-            color: #fff;
-            border-color: var(--line-strong);
-            background: rgba(255, 30, 70, 0.06);
-        }
-
-        .stats {
-            grid-column: span 3;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            padding: 0;
-        }
-        .stat {
-            padding: 16px 18px;
-            border-right: 1px solid var(--line);
-            border-bottom: 1px solid var(--line);
-        }
-        .stat:nth-child(2n) { border-right: none; }
-        .stat:nth-child(n+3) { border-bottom: none; }
-        .stat .num {
-            font-family: var(--mono);
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text);
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-        .stat .num span { color: var(--accent); }
-        .stat .cap {
-            font-family: var(--mono);
-            font-size: 9.5px;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .music { grid-column: span 6; padding: 16px; }
-        .music .label { padding-left: 6px; }
-        .music iframe {
-            width: 100%;
-            height: 152px;
-            border: none;
-            border-radius: 4px;
-            display: block;
-            background: #150709;
-        }
-        .music .fallback {
-            display: inline-block;
-            margin-top: 10px;
-            font-family: var(--mono);
-            font-size: 10.5px;
-            letter-spacing: 0.06em;
-            color: var(--muted);
-            text-decoration: none;
-            border-bottom: 1px dashed var(--line-strong);
-            transition: color 0.2s;
-        }
-        .music .fallback:hover { color: var(--accent); }
-
-        .link {
-            grid-column: span 3;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            min-height: 118px;
-            justify-content: space-between;
-        }
-        .link .top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        .link .icon {
-            font-size: 18px;
-            line-height: 1;
-            filter: grayscale(1) brightness(1.4);
-            transition: filter 0.25s;
-        }
-        .link:hover .icon { filter: grayscale(0) brightness(1); }
-        .link .arr {
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--muted);
-            transition: all 0.25s ease;
-        }
-        .link:hover .arr { color: var(--accent); transform: translate(2px, -2px); }
-        .link .name {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        .link .desc {
-            font-family: var(--mono);
-            font-size: 10.5px;
-            color: var(--muted);
-            letter-spacing: 0.04em;
-        }
-
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes shine {
-            0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
-        }
-
-        @media (max-width: 640px) {
-            .wrap { grid-template-columns: repeat(2, 1fr); }
-            .profile { grid-column: span 2; }
-            .bio, .music { grid-column: span 2; }
-            .stack, .link { grid-column: span 2; }
-            .stats { grid-column: span 2; }
-        }
-    </style>
+/* ====== Анимация печатающегося текста (typewriter) ====== */
+.typewriter::after {
+    content: '|';
+    animation: cursor-blink 1.1s infinite step-start;
+}
+@keyframes cursor-blink {
+    50% { opacity: 0; }
+}
+</style>
 </head>
 <body>
 
-<div class="wrap">
+<img class="bg-image" src="https://r2-bios.e-z.host/cafc3ee0-ae20-4bb2-86f4-f1106dda1a67/xpol1e5nut.png" alt="">
 
-    <section class="card profile">
-        <div class="avatar">
-            <img src="logo.png" alt="logo" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend','<div style=\'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;z-index:2;color:#ff1e46\'>◆</div>')">
-        </div>
-        <div class="profile-info">
-            <h1>Noname</h1>
-            <div class="role">minecraft plugin developer · java · netty</div>
-        </div>
-    </section>
+<main>
+    <div class="container">
 
-    <section class="card bio">
-        <div class="label">about</div>
-        <p>
-            Разрабатываю плагины для Minecraft <strong>более 2 лет</strong>.
-            Пишу на <span class="hl">Java</span>, работаю с <span class="hl">Bukkit / Spigot / Paper</span>,
-            настраиваю конфиги любой сложности и умею работать с сетевыми пакетами через
-            <span class="hl">Netty</span>. За это время выпустил <strong>45+ плагинов</strong>,
-            которые работали на серверах с пиком до <strong>250 игроков онлайн</strong>.
-            Делаю упор на производительность, чистый код и стабильность под нагрузкой.
-        </p>
-    </section>
+        <h1 class="click-hint" style="color:#ffffff">&lt; Enter World &gt;</h1>
 
-    <section class="card stack">
-        <div class="label">stack</div>
-        <div class="chips">
-            <span class="chip">Java</span>
-            <span class="chip">Paper API</span>
-            <span class="chip">Spigot</span>
-            <span class="chip">Netty</span>
-            <span class="chip">NMS</span>
-            <span class="chip">Protocol</span>
-            <span class="chip">YAML / JSON</span>
-            <span class="chip">Gradle</span>
-            <span class="chip">Maven</span>
-        </div>
-    </section>
+        <div class="card-wrap">
 
-    <section class="card stats">
-        <div class="stat">
-            <div class="num">2<span>+</span></div>
-            <div class="cap">years exp</div>
-        </div>
-        <div class="stat">
-            <div class="num">45<span>+</span></div>
-            <div class="cap">plugins shipped</div>
-        </div>
-        <div class="stat">
-            <div class="num">250</div>
-            <div class="cap">peak players</div>
-        </div>
-        <div class="stat">
-            <div class="num">24<span>/7</span></div>
-            <div class="cap">support</div>
-        </div>
-    </section>
+            <div class="card">
+                <img class="banner" src="https://r2-bios.e-z.host/cafc3ee0-ae20-4bb2-86f4-f1106dda1a67/qh42hkovza.png" alt="">
+                <div class="main-box">
+                    <div class="views">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"></path>
+                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"></path>
+                        </svg>
+                        <p>0</p>
+                    </div>
 
-    <section class="card music">
-        <div class="label">now playing</div>
-        <iframe
-            src="https://open.spotify.com/embed/track/3mMXGxnS6OFkKtqzSYgL0T?utm_source=generator&theme=0"
-            allowfullscreen
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy">
-        </iframe>
-        <a class="fallback" href="https://open.spotify.com/track/3mMXGxnS6OFkKtqzSYgL0T" target="_blank" rel="noopener">
-            open in spotify ↗
-        </a>
-    </section>
+                    <div class="profile-col">
+                        <div class="avatar-wrap">
+                            <img class="avatar" src="https://raw.githubusercontent.com/Nonameorig/Nonameorig.github.io/main/logo.png" alt="avatar">
+                        </div>
+                        <div class="name-wrap">
+                            <h1 class="name">Noname</h1>
+                        </div>
+                        <div class="description">Разрабатываю плагины для Minecraft более 2 лет. Пишу на Java, работаю с Bukkit / Spigot / Paper, настраиваю конфиги любой сложности и умею работать с сетевыми пакетами через Netty. За это время выпустил 45+ плагинов, которые работали на серверах с пиком до 250 игроков онлайн. Делаю упор на производительность, чистый код и стабильность под нагрузкой.</div>
 
-    <a href="https://dsc.gg/nonamestudio" target="_blank" rel="noopener" class="card link">
-        <div class="top">
-            <div class="icon">💬</div>
-            <div class="arr">↗</div>
-        </div>
-        <div>
-            <div class="name">Discord Studio</div>
-            <div class="desc">// dsc.gg/nonamestudio</div>
-        </div>
-    </a>
+                        <ul class="socials">
+                            <li class="social-item">
+                                <a href="https://github.com/Nonameorig" target="_blank" rel="noopener" title="GitHub">
+                                    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
+                                    </svg>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-    <a href="https://github.com/Nonameorig" target="_blank" rel="noopener" class="card link">
-        <div class="top">
-            <div class="icon">📁</div>
-            <div class="arr">↗</div>
-        </div>
-        <div>
-            <div class="name">GitHub</div>
-            <div class="desc">// github.com/Nonameorig</div>
-        </div>
-    </a>
+            <ul class="link-list">
+                <li class="link-item">
+                    <a href="https://github.com/Nonameorig" target="_blank" rel="noopener">
+                        <div class="link-left">
+                            <div class="link-icon-box">
+                                <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
+                                </svg>
+                            </div>
+                            <div class="link-text">
+                                <h1>GitHub</h1>
+                                <p>https://github.com/Nonameorig</p>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="link-arrow" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"></path>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
 
-</div>
+            <!-- ====== Плеер ====== -->
+            <div class="player-box">
+                <div class="player">
+                    <div class="player-header">
+                        <img src="https://raw.githubusercontent.com/Nonameorig/Nonameorig.github.io/main/icon.jpg" alt="cover">
+                        <div class="player-title">perfect face</div>
+                    </div>
+                    <div class="player-main">
+                        <div class="player-progress-row">
+                            <div class="player-time" id="current-time">00:00</div>
+                            <div class="player-progress-container" id="progress-container">
+                                <div class="player-progress-filled" id="progress-filled"></div>
+                                <div class="player-progress-indicator" id="progress-indicator"></div>
+                            </div>
+                            <div class="player-time" id="total-time">00:00</div>
+                        </div>
+                        <div class="player-controls">
+                            <button class="player-btn" id="rewind-btn" aria-label="Rewind">
+                                <svg viewBox="0 0 24 24"><path d="M6 18V6h2v12zm3.5-6L18 6v12z"></path></svg>
+                            </button>
+                            <button class="player-btn play-pause" id="play-pause-btn" aria-label="Play">
+                                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                                <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 5h4v14H6zm8 0h4v14h-4z"></path></svg>
+                            </button>
+                            <button class="player-btn" id="forward-btn" aria-label="Forward">
+                                <svg viewBox="0 0 24 24"><path d="M16 18h2V6h-2M6 18l8.5-6L6 6z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <audio id="audio" src="https://raw.githubusercontent.com/Nonameorig/Nonameorig.github.io/main/perfect_face_forhub_soundcloud_to_mp3.mp3" preload="metadata"></audio>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script>
+(function() {
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const playIcon = document.getElementById('play-icon');
+    const pauseIcon = document.getElementById('pause-icon');
+    const progressContainer = document.getElementById('progress-container');
+    const progressFilled = document.getElementById('progress-filled');
+    const progressIndicator = document.getElementById('progress-indicator');
+    const currentTimeEl = document.getElementById('current-time');
+    const totalTimeEl = document.getElementById('total-time');
+    const rewindBtn = document.getElementById('rewind-btn');
+    const forwardBtn = document.getElementById('forward-btn');
+
+    function formatTime(sec) {
+        if (!isFinite(sec)) return '00:00';
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function updateProgress() {
+        if (!audio.duration) return;
+        const pct = (audio.currentTime / audio.duration) * 100;
+        progressFilled.style.width = pct + '%';
+        progressIndicator.style.left = pct + '%';
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+        totalTimeEl.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', updateProgress);
+
+    playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+        } else {
+            audio.pause();
+        }
+    });
+
+    audio.addEventListener('play', () => {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+    });
+
+    audio.addEventListener('pause', () => {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+    });
+
+    rewindBtn.addEventListener('click', () => {
+        audio.currentTime = Math.max(0, audio.currentTime - 10);
+    });
+
+    forwardBtn.addEventListener('click', () => {
+        audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
+    });
+
+    progressContainer.addEventListener('click', (e) => {
+        const rect = progressContainer.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        if (audio.duration) {
+            audio.currentTime = pct * audio.duration;
+        }
+    });
+})();
+</script>
 
 </body>
 </html>

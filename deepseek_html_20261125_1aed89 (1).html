@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FC Карточка • Telegram Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background-color: #090D16;
+      color: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 70px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Loader */
+    #loader {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #090D16;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid rgba(0, 255, 135, 0.2);
+      border-top: 4px solid #00FF87;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loader-text { color: #00FF87; font-weight: 600; letter-spacing: 0.5px; }
+
+    /* ============================== ONBOARDING ============================== */
+    #onboarding {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #090D16;
+      z-index: 900;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    #onboarding.active { display: flex; }
+    .onb-step {
+      display: none;
+      flex-direction: column;
+      padding: 24px 20px 40px;
+      min-height: 100vh;
+      animation: fadeIn 0.35s ease;
+    }
+    .onb-step.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .onb-header { text-align: center; margin-bottom: 24px; }
+    .onb-title {
+      font-size: 26px; font-weight: 800; margin-bottom: 8px; color: #FFFFFF;
+    }
+    .onb-subtitle { font-size: 14px; color: #6B7A8F; line-height: 1.4; }
+
+    /* Step 1 */
+    .position-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 24px;
+    }
+    .position-card {
+      background: #0F1421; border: 2px solid #1E2636;
+      border-radius: 18px; padding: 18px 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .position-card:active { transform: scale(0.97); }
+    .position-card.selected {
+      border-color: #00FF87; background: rgba(0, 255, 135, 0.08);
+      box-shadow: 0 0 20px rgba(0, 255, 135, 0.15);
+    }
+    .position-icon { font-size: 36px; }
+    .position-name { font-size: 18px; font-weight: 800; color: #FFFFFF; }
+    .position-desc { font-size: 11px; color: #6B7A8F; text-align: center; line-height: 1.3; }
+    .position-stats {
+      font-size: 10px; color: #00FF87; font-weight: 600;
+      text-align: center; line-height: 1.4; margin-top: 4px;
+    }
+    .onboarding-input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+    .onboarding-label { font-size: 13px; font-weight: 600; color: #9AA8BC; }
+
+    /* Generic primary button */
+    .btn-create {
+      width: 100%; padding: 16px; font-size: 16px; font-weight: 700;
+      border: none; border-radius: 16px; background: #00FF87; color: #090D16;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-create:active { transform: scale(0.97); background: #00CC6A; }
+    .btn-create:disabled { opacity: 0.4; pointer-events: none; }
+
+    /* Step 2: Calibration */
+    .progress-bar-wrap {
+      display: flex; gap: 6px; margin-bottom: 20px;
+    }
+    .progress-dot {
+      flex: 1; height: 6px; border-radius: 3px; background: #1E2636;
+      transition: background 0.3s;
+    }
+    .progress-dot.done { background: #00FF87; }
+    .progress-dot.current { background: #FFD700; }
+
+    .task-card {
+      background: #0F1421; border: 1px solid #1E2636;
+      border-radius: 18px; overflow: hidden; margin-bottom: 16px;
+    }
+    .task-video {
+      position: relative; width: 100%; padding-bottom: 56.25%;
+      background: #000;
+    }
+    .task-video iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; border: none;
+    }
+    .task-body { padding: 16px; }
+    .task-number {
+      font-size: 11px; font-weight: 700; color: #00FF87;
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .task-name { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .task-instruction {
+      font-size: 13px; color: #9AA8BC; line-height: 1.5;
+      margin-bottom: 12px; white-space: pre-line;
+    }
+    .task-hint {
+      font-size: 12px; color: #FFD700; background: rgba(255, 215, 0, 0.08);
+      padding: 8px 12px; border-radius: 10px; margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .self-assess-buttons {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .assess-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-radius: 14px; border: 1px solid #1E2636;
+      background: #0F1421; color: #FFFFFF; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .assess-btn:active { transform: scale(0.98); }
+    .assess-btn.perfect { border-color: #00FF87; }
+    .assess-btn.perfect:active { background: rgba(0, 255, 135, 0.1); }
+    .assess-btn.medium { border-color: #FFD700; }
+    .assess-btn.medium:active { background: rgba(255, 215, 0, 0.1); }
+    .assess-btn.skip { border-color: #6B7A8F; }
+    .assess-btn.skip:active { background: rgba(107, 122, 143, 0.15); }
+    .assess-reward { font-size: 13px; font-weight: 800; }
+    .assess-reward.plus6 { color: #00FF87; }
+    .assess-reward.plus3 { color: #FFD700; }
+    .assess-reward.plus0 { color: #6B7A8F; }
+
+    .yt-fallback-btn {
+      margin-top: 8px; background: transparent; border: none;
+      color: #6B7A8F; font-size: 12px; text-decoration: underline;
+      cursor: pointer; padding: 4px;
+    }
+
+    /* Step 3: Result */
+    .analyzing {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 60vh; gap: 20px;
+    }
+    .analyzing-spinner {
+      width: 64px; height: 64px;
+      border: 4px solid rgba(0, 255, 135, 0.2);
+      border-top: 4px solid #00FF87;
+      border-radius: 50%; animation: spin 0.9s linear infinite;
+    }
+    .analyzing-text {
+      color: #00FF87; font-size: 16px; font-weight: 700;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .result-wrapper {
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+      margin-top: 10px;
+    }
+
+    /* ============================== APP ============================== */
+    #app { display: none; flex: 1; flex-direction: column; }
+    .tab-content { display: none; padding: 16px; flex: 1; }
+    .tab-content.active { display: block; }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0F1421; border-top: 1px solid #1E2636;
+      display: flex; justify-content: space-around;
+      padding: 8px 0 env(safe-area-inset-bottom, 8px) 0;
+      z-index: 100;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; color: #6B7A8F; font-size: 11px; font-weight: 500;
+      cursor: pointer; transition: color 0.2s; padding: 4px 20px; border-radius: 12px;
+    }
+    .nav-item.active { color: #00FF87; }
+    .nav-icon { font-size: 22px; line-height: 1; }
+
+    /* Card Tab */
+    .card-wrapper { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .fc-card {
+      width: 100%; max-width: 340px; aspect-ratio: 3/4.2;
+      border-radius: 24px; padding: 20px;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      transition: transform 0.2s;
+      background: #1A1F2E; border: 2px solid #2A3245;
+    }
+    .fc-card.rarity-bronze { background: linear-gradient(145deg, #5C3A1E, #2E1D0E); border-color: #8B5A2B; }
+    .fc-card.rarity-silver { background: linear-gradient(145deg, #5A5F6B, #2D3038); border-color: #A0A8B8; }
+    .fc-card.rarity-gold { background: linear-gradient(145deg, #8B6914, #3D2E08); border-color: #FFD700; }
+    .fc-card.rarity-neon {
+      background: linear-gradient(145deg, #0A1F1A, #05100D);
+      border-color: #00FF87;
+      box-shadow: 0 0 30px rgba(0, 255, 135, 0.3), 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .card-ovr-block { display: flex; flex-direction: column; align-items: center; }
+    .card-ovr {
+      font-size: 48px; font-weight: 800; line-height: 1; letter-spacing: -2px;
+      color: #FFFFFF; text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .card-position {
+      font-size: 14px; font-weight: 700; color: #FFD700;
+      margin-top: 2px; letter-spacing: 1px;
+    }
+    .card-avatar {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: #2A3245; border: 3px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; overflow: hidden; position: relative;
+    }
+    .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .card-name {
+      font-size: 22px; font-weight: 700; text-align: center;
+      margin-top: 12px; width: 100%; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+      color: #FFFFFF; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .card-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px 16px; margin-top: auto; padding-top: 16px;
+    }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; }
+    .stat-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .stat-value { font-size: 18px; font-weight: 800; color: #FFFFFF; }
+    .stat-value.boosted { color: #00FF87; }
+
+    .controls { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 340px; }
+    .input-group { display: flex; gap: 8px; }
+    .input-field {
+      flex: 1; background: #1A1F2E; border: 1px solid #2A3245;
+      border-radius: 12px; padding: 12px 14px; color: #FFFFFF;
+      font-size: 15px; outline: none; transition: border-color 0.2s;
+    }
+    .input-field:focus { border-color: #00FF87; }
+    .btn {
+      background: #1A1F2E; border: 1px solid #2A3245;
+      border-radius: 12px; padding: 12px 16px; color: #FFFFFF;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+      text-align: center;
+    }
+    .btn:active { transform: scale(0.97); background: #232A3D; }
+    .btn-primary { background: #00FF87; color: #090D16; border: none; }
+    .btn-primary:active { background: #00CC6A; }
+    .btn-gold { background: #FFD700; color: #090D16; border: none; }
+    .btn-gold:active { background: #E6C200; }
+    .btn-outline { background: transparent; border: 1px solid #2A3245; }
+    .btn-sm { padding: 10px 14px; font-size: 13px; }
+
+    /* Workouts Tab */
+    .workout-list { display: flex; flex-direction: column; gap: 12px; }
+    .workout-item {
+      background: #0F1421; border: 1px solid #1E2636;
+      border-radius: 16px; padding: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .workout-header { display: flex; justify-content: space-between; align-items: center; }
+    .workout-title { font-size: 16px; font-weight: 700; color: #FFFFFF; }
+    .workout-duration { font-size: 12px; color: #6B7A8F; }
+    .workout-desc { font-size: 13px; color: #9AA8BC; line-height: 1.4; }
+    .workout-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .workout-reward { font-size: 13px; font-weight: 700; color: #00FF87; }
+    .cooldown-badge {
+      font-size: 11px; color: #FF6B6B; font-weight: 600;
+      background: rgba(255, 107, 107, 0.1); padding: 4px 10px; border-radius: 20px;
+    }
+    .timer-display {
+      font-size: 24px; font-weight: 800; color: #FFD700; text-align: center;
+      padding: 8px; font-variant-numeric: tabular-nums;
+    }
+
+    /* Video Modal */
+    .video-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85); z-index: 800;
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .video-modal-overlay.active { display: flex; }
+    .video-modal {
+      background: #0F1421; border: 1px solid #1E2636;
+      border-radius: 20px; width: 100%; max-width: 400px; overflow: hidden;
+    }
+    .video-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px; border-bottom: 1px solid #1E2636;
+    }
+    .video-modal-title { font-size: 16px; font-weight: 700; }
+    .video-modal-close {
+      background: none; border: none; color: #6B7A8F;
+      font-size: 24px; cursor: pointer; padding: 0 8px;
+    }
+    .video-container { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; }
+    .video-container iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; border: none;
+    }
+    .video-modal-footer { padding: 12px 16px; display: flex; gap: 8px; }
+
+    /* Leaderboard */
+    .leaderboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .leaderboard-title { font-size: 20px; font-weight: 800; color: #FFFFFF; }
+    .your-rank-badge {
+      background: rgba(0, 255, 135, 0.1); color: #00FF87;
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700;
+    }
+    .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+    .leaderboard-item {
+      display: flex; align-items: center; gap: 12px;
+      background: #0F1421; border: 1px solid #1E2636;
+      border-radius: 14px; padding: 12px 14px;
+    }
+    .leaderboard-item.current-user {
+      border-color: #00FF87; background: rgba(0, 255, 135, 0.06);
+      box-shadow: 0 0 20px rgba(0, 255, 135, 0.1);
+    }
+    .rank-number { font-size: 16px; font-weight: 800; color: #6B7A8F; width: 32px; text-align: center; }
+    .rank-number.top-1 { color: #FFD700; }
+    .rank-number.top-2 { color: #C0C0C0; }
+    .rank-number.top-3 { color: #CD7F32; }
+    .leaderboard-info { flex: 1; display: flex; flex-direction: column; }
+    .leaderboard-name { font-size: 15px; font-weight: 700; color: #FFFFFF; }
+    .leaderboard-pos { font-size: 11px; color: #6B7A8F; }
+    .leaderboard-ovr { font-size: 20px; font-weight: 800; color: #00FF87; }
+    .empty-leaderboard { text-align: center; padding: 40px 20px; color: #6B7A8F; font-size: 14px; }
+    .invite-btn { margin-top: 20px; }
+
+    /* Utility */
+    .hidden { display: none !important; }
+    .toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+      background: #1A1F2E; color: #FFFFFF; padding: 12px 24px;
+      border-radius: 30px; font-size: 14px; font-weight: 600;
+      border: 1px solid #2A3245; z-index: 1500;
+      animation: fadeInOut 2.5s ease forwards;
+      white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .workout-item.disabled { opacity: 0.6; }
+    .workout-item.disabled .btn { pointer-events: none; opacity: 0.5; }
+    .btn-watch {
+      background: transparent; border: 1px solid #2A3245;
+      color: #9AA8BC; padding: 8px 12px; border-radius: 10px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-watch:active { background: #1E2636; }
+  </style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="spinner"></div>
+  <div class="loader-text">Загрузка карточки...</div>
+</div>
+
+<!-- ============================== ONBOARDING ============================== -->
+<div id="onboarding">
+
+  <!-- STEP 1: Position & Name -->
+  <div class="onb-step active" id="onbStep1">
+    <div class="onb-header">
+      <div class="onb-title">Выбери свою позицию</div>
+      <div class="onb-subtitle">Это определит твои стартовые характеристики и программу калибровки</div>
+    </div>
+
+    <div class="position-grid" id="positionGrid">
+      <div class="position-card" data-pos="НАП" data-stats='{"pac":64,"sho":65,"pas":58,"dri":63,"def":58,"phy":58}'>
+        <div class="position-icon">⚡</div>
+        <div class="position-name">НАП</div>
+        <div class="position-desc">Нападающий</div>
+        <div class="position-stats">Удар 65 • Скорость 64<br>Дриблинг 63</div>
+      </div>
+      <div class="position-card" data-pos="ПЗ" data-stats='{"pac":58,"sho":58,"pas":65,"dri":64,"def":58,"phy":62}'>
+        <div class="position-icon">🎯</div>
+        <div class="position-name">ПЗ</div>
+        <div class="position-desc">Полузащитник</div>
+        <div class="position-stats">Пас 65 • Дриблинг 64<br>Физика 62</div>
+      </div>
+      <div class="position-card" data-pos="ЗАЩ" data-stats='{"pac":58,"sho":58,"pas":61,"dri":58,"def":65,"phy":64}'>
+        <div class="position-icon">🛡️</div>
+        <div class="position-name">ЗАЩ</div>
+        <div class="position-desc">Защитник</div>
+        <div class="position-stats">Защита 65 • Физика 64<br>Пас 61</div>
+      </div>
+      <div class="position-card" data-pos="ВРТ" data-stats='{"pac":57,"sho":57,"pas":62,"dri":57,"def":66,"phy":64}'>
+        <div class="position-icon">🧤</div>
+        <div class="position-name">ВРТ</div>
+        <div class="position-desc">Вратарь</div>
+        <div class="position-stats">Реакция 66 • Физика 64<br>Пас 62</div>
+      </div>
+    </div>
+
+    <div class="onboarding-input-group">
+      <label class="onboarding-label">Твое имя или никнейм</label>
+      <input type="text" id="onboardingName" class="input-field" placeholder="Введи имя" maxlength="20">
+    </div>
+
+    <button id="btnStartCalibration" class="btn-create" disabled>Начать калибровку навыков</button>
+  </div>
+
+  <!-- STEP 2: Video Calibration -->
+  <div class="onb-step" id="onbStep2">
+    <div class="onb-header">
+      <div class="onb-title" id="calibTitle">Калибровка навыков</div>
+      <div class="onb-subtitle">Выполни 3 практических задания и оцени себя честно</div>
+    </div>
+
+    <div class="progress-bar-wrap" id="progressBar"></div>
+
+    <div id="taskContainer"></div>
+  </div>
+
+  <!-- STEP 3: Result -->
+  <div class="onb-step" id="onbStep3">
+    <div class="analyzing" id="analyzingBlock">
+      <div class="analyzing-spinner"></div>
+      <div class="analyzing-text">Анализируем твои навыки...</div>
+    </div>
+
+    <div id="resultBlock" class="hidden">
+      <div class="onb-header">
+        <div class="onb-title">Твоя стартовая карточка!</div>
+        <div class="onb-subtitle">Готов начать путь к вершине рейтинга?</div>
+      </div>
+
+      <div class="result-wrapper">
+        <div class="fc-card" id="resultCard">
+          <div class="card-top">
+            <div class="card-ovr-block">
+              <div class="card-ovr" id="resultOvr">60</div>
+              <div class="card-position" id="resultPosition">НАП</div>
+            </div>
+            <div class="card-avatar">
+              <span>⚽</span>
+            </div>
+          </div>
+          <div class="card-name" id="resultName">Игрок</div>
+          <div class="card-stats" id="resultStats"></div>
+        </div>
+
+        <button id="btnSaveAndEnter" class="btn-create">Сохранить карточку и войти в рейтинг</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================== APP ============================== -->
+<div id="app">
+  <!-- Tab 1: Card -->
+  <div id="tab-card" class="tab-content active">
+    <div class="card-wrapper">
+      <div class="fc-card" id="fcCard">
+        <div class="card-top">
+          <div class="card-ovr-block">
+            <div class="card-ovr" id="cardOvr">60</div>
+            <div class="card-position" id="cardPosition">НАП</div>
+          </div>
+          <div class="card-avatar" id="cardAvatar">
+            <span id="avatarPlaceholder">⚽</span>
+            <img id="avatarImg" class="hidden" alt="avatar">
+          </div>
+        </div>
+        <div class="card-name" id="cardName">Игрок</div>
+        <div class="card-stats" id="cardStats"></div>
+      </div>
+
+      <div class="controls">
+        <div class="input-group">
+          <input type="text" id="inputName" class="input-field" placeholder="Имя" maxlength="20">
+          <button id="btnSaveName" class="btn btn-sm btn-primary" style="flex:0 0 auto;">OK</button>
+        </div>
+        <div class="input-group">
+          <select id="selectPosition" class="input-field">
+            <option value="НАП">НАП</option>
+            <option value="ПЗ">ПЗ</option>
+            <option value="ЗАЩ">ЗАЩ</option>
+            <option value="ВРТ">ВРТ</option>
+          </select>
+          <button id="btnSavePosition" class="btn btn-sm btn-primary" style="flex:0 0 auto;">OK</button>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="btnUploadPhoto" class="btn btn-outline" style="flex:1;">📷 Фото</button>
+          <button id="btnDownloadCard" class="btn btn-gold" style="flex:1;">⬇️ PNG</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Workouts -->
+  <div id="tab-workouts" class="tab-content">
+    <div class="workout-list" id="workoutList"></div>
+  </div>
+
+  <!-- Tab 3: Leaderboard -->
+  <div id="tab-leaderboard" class="tab-content">
+    <div class="leaderboard-header">
+      <span class="leaderboard-title">Топ игроков</span>
+      <span class="your-rank-badge" id="yourRankBadge">#—</span>
+    </div>
+    <div class="leaderboard-list" id="leaderboardList">
+      <div class="empty-leaderboard">Загрузка рейтинга...</div>
+    </div>
+    <button id="btnInvite" class="btn btn-primary invite-btn">👥 Пригласить друга</button>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" data-tab="card"><span class="nav-icon">🪪</span><span>Карточка</span></div>
+    <div class="nav-item" data-tab="workouts"><span class="nav-icon">🏋️</span><span>Тренировки</span></div>
+    <div class="nav-item" data-tab="leaderboard"><span class="nav-icon">🏆</span><span>Топ</span></div>
+  </nav>
+</div>
+
+<!-- Video Modal -->
+<div class="video-modal-overlay" id="videoModal">
+  <div class="video-modal">
+    <div class="video-modal-header">
+      <span class="video-modal-title" id="videoModalTitle">Видео-разбор</span>
+      <button class="video-modal-close" id="videoModalClose">×</button>
+    </div>
+    <div class="video-container" id="videoContainer"></div>
+    <div class="video-modal-footer">
+      <button class="btn btn-outline btn-sm" id="btnOpenYouTube" style="flex:1;">▶ Открыть в YouTube</button>
+      <button class="btn btn-primary btn-sm" id="btnCloseVideo" style="flex:1;">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ============================================================
+  // FIREBASE INIT
+  // ============================================================
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js';
+  import {
+    getFirestore, doc, getDoc, setDoc, updateDoc,
+    collection, query, orderBy, limit, getDocs
+  } from 'https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDf9XajaPyu36cKZM_B4PkqGY1WSug8Dec",
+    authDomain: "footballprojecttelegram.firebaseapp.com",
+    projectId: "footballprojecttelegram",
+    storageBucket: "footballprojecttelegram.firebasestorage.app",
+    messagingSenderId: "622783842577",
+    appId: "1:622783842577:web:93d757522e7c08b4c624b0",
+    measurementId: "G-HMDYGJPMFC"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ============================================================
+  // TELEGRAM WEBAPP
+  // ============================================================
+  const tg = window.Telegram?.WebApp;
+  let tgUser = null;
+  let userId = null;
+  let userName = 'Игрок';
+  let userUsername = '';
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    tgUser = tg.initDataUnsafe?.user;
+    if (tgUser) {
+      userId = String(tgUser.id);
+      userName = tgUser.first_name || 'Игрок';
+      userUsername = tgUser.username || '';
+    }
+  }
+
+  if (!userId) {
+    let guestId = localStorage.getItem('guest_tg_id');
+    if (!guestId) {
+      guestId = 'guest_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+      localStorage.setItem('guest_tg_id', guestId);
+    }
+    userId = guestId;
+    userName = 'Игрок';
+    userUsername = '';
+  }
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  let playerData = {
+    name: userName,
+    username: userUsername,
+    position: 'НАП',
+    ovr: 60,
+    stats: { pac: 60, sho: 60, pas: 60, dri: 60, def: 60, phy: 60 },
+    workoutsCompleted: 0,
+    updatedAt: Date.now(),
+    photoBase64: null
+  };
+
+  let currentTab = 'card';
+  let activeWorkoutTimer = null;
+
+  // Onboarding state
+  let onbSelectedPosition = null;
+  let onbSelectedStats = null;
+  let onbCalibStats = null;
+  let onbCalibTasks = [];
+  let onbCurrentTaskIndex = 0;
+  let onbName = userName;
+
+  // ============================================================
+  // UTILS
+  // ============================================================
+  function haptic(type = 'impact', style = 'medium') {
+    if (!tg?.HapticFeedback) return;
+    try {
+      if (type === 'impact') tg.HapticFeedback.impactOccurred(style);
+      else if (type === 'notification') tg.HapticFeedback.notificationOccurred(style);
+    } catch (e) { /* ignore */ }
+  }
+
+  function showToast(msg) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2600);
+  }
+
+  function calcOvr(stats) {
+    const vals = Object.values(stats);
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  }
+
+  function getRarityClass(ovr) {
+    if (ovr >= 85) return 'rarity-neon';
+    if (ovr >= 75) return 'rarity-gold';
+    if (ovr >= 65) return 'rarity-silver';
+    return 'rarity-bronze';
+  }
+
+  function getPositionLabel(pos) {
+    const map = { 'НАП': 'НАП', 'ПЗ': 'ПЗ', 'ЗАЩ': 'ЗАЩ', 'ВРТ': 'ВРТ' };
+    return map[pos] || pos;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Правильный YouTube embed с referrerpolicy и корректными параметрами
+  function buildYouTubeEmbed(videoId) {
+    return `<iframe
+      src="https://www.youtube-nocookie.com/embed/${videoId}?playsinline=1&rel=0"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      loading="lazy"></iframe>`;
+  }
+
+  // ============================================================
+  // FIRESTORE
+  // ============================================================
+  async function loadPlayer() {
+    try {
+      const docRef = doc(db, 'players', userId);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        playerData = {
+          name: data.name || userName,
+          username: data.username || userUsername,
+          position: data.position || 'НАП',
+          ovr: data.ovr || 60,
+          stats: data.stats || { pac: 60, sho: 60, pas: 60, dri: 60, def: 60, phy: 60 },
+          workoutsCompleted: data.workoutsCompleted || 0,
+          updatedAt: data.updatedAt || Date.now(),
+          photoBase64: data.photoBase64 || null
+        };
+        playerData.ovr = calcOvr(playerData.stats);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('Load player error:', e);
+      return false;
+    }
+  }
+
+  async function savePlayer(updates) {
+    try {
+      const docRef = doc(db, 'players', userId);
+      await updateDoc(docRef, { ...updates, updatedAt: Date.now() });
+      return true;
+    } catch (e) {
+      console.error('Save error:', e);
+      showToast('Ошибка сохранения');
+      return false;
+    }
+  }
+
+  async function createPlayer(name, position, stats) {
+    try {
+      const ovr = calcOvr(stats);
+      const docRef = doc(db, 'players', userId);
+      await setDoc(docRef, {
+        name, username: userUsername, position, ovr, stats,
+        workoutsCompleted: 0, updatedAt: Date.now(), photoBase64: null
+      });
+      playerData = {
+        name, username: userUsername, position, ovr, stats,
+        workoutsCompleted: 0, updatedAt: Date.now(), photoBase64: null
+      };
+      return true;
+    } catch (e) {
+      console.error('Create error:', e);
+      showToast('Ошибка создания');
+      return false;
+    }
+  }
+
+  // ============================================================
+  // RENDER CARD
+  // ============================================================
+  function renderCard() {
+    const ovr = playerData.ovr;
+    const cardEl = document.getElementById('fcCard');
+    cardEl.classList.remove('rarity-bronze', 'rarity-silver', 'rarity-gold', 'rarity-neon');
+    cardEl.classList.add(getRarityClass(ovr));
+
+    document.getElementById('cardOvr').textContent = ovr;
+    document.getElementById('cardPosition').textContent = getPositionLabel(playerData.position);
+    document.getElementById('cardName').textContent = playerData.name;
+
+    const stats = playerData.stats;
+    const statLabels = { pac: 'СКР', sho: 'УДР', pas: 'ПАС', dri: 'ДРИ', def: 'ЗАЩ', phy: 'ФИЗ' };
+    document.getElementById('cardStats').innerHTML = Object.entries(statLabels).map(([key, label]) => {
+      const val = stats[key] ?? 60;
+      const boosted = val > 60 ? ' boosted' : '';
+      return `<div class="stat-row"><span class="stat-label">${label}</span><span class="stat-value${boosted}">${val}</span></div>`;
+    }).join('');
+
+    if (playerData.photoBase64) {
+      document.getElementById('avatarPlaceholder').classList.add('hidden');
+      const img = document.getElementById('avatarImg');
+      img.src = playerData.photoBase64;
+      img.classList.remove('hidden');
+    } else {
+      document.getElementById('avatarPlaceholder').classList.remove('hidden');
+      document.getElementById('avatarImg').classList.add('hidden');
+    }
+
+    document.getElementById('inputName').value = playerData.name;
+    document.getElementById('selectPosition').value = playerData.position;
+  }
+
+  // ============================================================
+  // ONBOARDING: CALIBRATION TASKS
+  // ============================================================
+  function getCalibrationTasks(position) {
+    if (position === 'ВРТ') {
+      return [
+        {
+          name: 'Ловля мяча в падении',
+          stat: 'def',
+          youtubeId: 'Hy10XUls8xs',
+          youtubeTitle: 'Вратарская техника: ловля в падении',
+          instruction: '1. Прими стойку вратаря на полусогнутых ногах\n2. Сделай 10 падений в сторону, ловя мяч (или подушку)\n3. Возвращайся в стойку после каждого падения',
+          hint: 'Следи за мягкой посадкой на бок и фиксацией мяча двумя руками.'
+        },
+        {
+          name: 'Быстрая реакция на отскок',
+          stat: 'def',
+          youtubeId: 'lEDTwS2y1uc',
+          youtubeTitle: 'Реакция вратаря на отскок',
+          instruction: '1. Брось мяч об стену перед собой\n2. Поймай отскок на реакцию 10 раз\n3. Постепенно бросай сильнее',
+          hint: 'Не отводи взгляд от мяча — тело должно реагировать автоматически.'
+        },
+        {
+          name: 'Точный ввод мяча рукой/ногой',
+          stat: 'pas',
+          youtubeId: 'oIpRuzvsU80',
+          youtubeTitle: 'Техника ввода мяча вратарём',
+          instruction: '1. Поставь цель (мишень или партнёра) на расстоянии 15-20 м\n2. Сделай 10 точных бросков/ударов\n3. Старайся попасть 7 из 10',
+          hint: 'Делай замах и следи за направлением плеча и бедра.'
+        }
+      ];
+    }
+    return [
+      {
+        name: 'Точный пас в цель',
+        stat: 'pas',
+        youtubeId: 'oIpRuzvsU80',
+        youtubeTitle: 'Техника паса: точность и сила',
+        instruction: '1. Поставь мишень или партнёра на расстоянии 10-15 м\n2. Сделай 10 передач внутренней стороной стопы\n3. Считай точные попадания',
+        hint: 'Опорная нога направлена на цель, внутренняя сторона стопы — ровная.'
+      },
+      {
+        name: 'Контроль и дриблинг',
+        stat: 'dri',
+        youtubeId: 'ZPZ0B1xK4tQ',
+        youtubeTitle: 'Дриблинг: контроль мяча и финты',
+        instruction: '1. Расставь 5-7 конусов (или бутылок) в линию\n2. Проведи мяч змейкой на скорости 3 раза\n3. Считай задевания конусов',
+        hint: 'Корпус наклонён вперёд, мяч близко к ноге, работай обеими ногами.'
+      },
+      {
+        name: 'Удар в угол',
+        stat: 'sho',
+        youtubeId: 'QDb5-cMIbjM',
+        youtubeTitle: 'Техника удара по воротам: разбор',
+        instruction: '1. Поставь два маркера в углах ворот (или между ними)\n2. Сделай 5 ударов в левый угол, 5 в правый\n3. Считай точные попадания',
+        hint: 'Бей внутренней стороной стопы — так точнее, чем щекой.'
+      }
+    ];
+  }
+
+  // ============================================================
+  // ONBOARDING: STEP 1
+  // ============================================================
+  function showOnboarding() {
+    document.getElementById('onboarding').classList.add('active');
+    document.getElementById('onboardingName').value = userName;
+    document.getElementById('onbStep1').classList.add('active');
+    document.getElementById('onbStep2').classList.remove('active');
+    document.getElementById('onbStep3').classList.remove('active');
+
+    document.querySelectorAll('.position-card').forEach(card => {
+      card.addEventListener('click', () => {
+        haptic('impact', 'light');
+        document.querySelectorAll('.position-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        onbSelectedPosition = card.dataset.pos;
+        onbSelectedStats = JSON.parse(card.dataset.stats);
+        document.getElementById('btnStartCalibration').disabled = false;
+      });
+    });
+
+    document.getElementById('btnStartCalibration').addEventListener('click', () => {
+      const name = document.getElementById('onboardingName').value.trim();
+      if (!name) { showToast('Введи имя'); return; }
+      if (!onbSelectedPosition) { showToast('Выбери позицию'); return; }
+      haptic('impact', 'medium');
+      onbName = name;
+      startCalibration();
+    });
+  }
+
+  // ============================================================
+  // ONBOARDING: STEP 2 — CALIBRATION
+  // ============================================================
+  function startCalibration() {
+    onbCalibTasks = getCalibrationTasks(onbSelectedPosition);
+    onbCalibStats = { ...onbSelectedStats };
+    onbCurrentTaskIndex = 0;
+
+    document.getElementById('onbStep1').classList.remove('active');
+    document.getElementById('onbStep2').classList.add('active');
+
+    renderCalibrationTask();
+  }
+
+  function renderCalibrationTask() {
+    const total = onbCalibTasks.length;
+    const idx = onbCurrentTaskIndex;
+    const task = onbCalibTasks[idx];
+
+    const progress = document.getElementById('progressBar');
+    progress.innerHTML = onbCalibTasks.map((_, i) => {
+      let cls = 'progress-dot';
+      if (i < idx) cls += ' done';
+      else if (i === idx) cls += ' current';
+      return `<div class="${cls}"></div>`;
+    }).join('');
+
+    const container = document.getElementById('taskContainer');
+    container.innerHTML = `
+      <div class="task-card">
+        <div class="task-video">
+          ${buildYouTubeEmbed(task.youtubeId)}
+        </div>
+        <div class="task-body">
+          <div class="task-number">Задание ${idx + 1} из ${total}</div>
+          <div class="task-name">${task.name}</div>
+          <div class="task-instruction">${task.instruction}</div>
+          <div class="task-hint">💡 ${task.hint}</div>
+          <a class="yt-fallback-btn" href="https://www.youtube.com/watch?v=${task.youtubeId}" target="_blank" rel="noopener noreferrer">Смотреть напрямую в YouTube ↗</a>
+          <div class="self-assess-buttons" style="margin-top:12px;">
+            <button class="assess-btn perfect" data-score="6">
+              <span>Сделал идеально! 🔥</span>
+              <span class="assess-reward plus6">+6 ${task.stat.toUpperCase()}</span>
+            </button>
+            <button class="assess-btn medium" data-score="3">
+              <span>Получилось средне 👍</span>
+              <span class="assess-reward plus3">+3 ${task.stat.toUpperCase()}</span>
+            </button>
+            <button class="assess-btn skip" data-score="0">
+              <span>Пока сложно / Пропустить 😅</span>
+              <span class="assess-reward plus0">+0</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // YT fallback — открываем через Telegram, если доступно
+    container.querySelector('.yt-fallback-btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const url = `https://www.youtube.com/watch?v=${task.youtubeId}`;
+      haptic('impact', 'light');
+      if (tg?.openLink) tg.openLink(url);
+      else window.open(url, '_blank');
+    });
+
+    container.querySelectorAll('.assess-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const score = parseInt(btn.dataset.score, 10);
+        haptic('impact', score > 0 ? 'medium' : 'light');
+        onbCalibStats[task.stat] = Math.min(99, (onbCalibStats[task.stat] || 60) + score);
+        advanceCalibration();
+      });
+    });
+  }
+
+  function advanceCalibration() {
+    onbCurrentTaskIndex++;
+    if (onbCurrentTaskIndex < onbCalibTasks.length) {
+      const container = document.getElementById('taskContainer');
+      container.style.opacity = '0';
+      setTimeout(() => {
+        renderCalibrationTask();
+        container.style.opacity = '1';
+      }, 200);
+    } else {
+      showCalibrationResult();
+    }
+  }
+
+  // ============================================================
+  // ONBOARDING: STEP 3 — RESULT
+  // ============================================================
+  function showCalibrationResult() {
+    document.getElementById('onbStep2').classList.remove('active');
+    document.getElementById('onbStep3').classList.add('active');
+
+    document.getElementById('analyzingBlock').classList.remove('hidden');
+    document.getElementById('resultBlock').classList.add('hidden');
+
+    const ovr = calcOvr(onbCalibStats);
+
+    setTimeout(() => {
+      const resultCard = document.getElementById('resultCard');
+      resultCard.classList.remove('rarity-bronze', 'rarity-silver', 'rarity-gold', 'rarity-neon');
+      resultCard.classList.add(getRarityClass(ovr));
+
+      document.getElementById('resultOvr').textContent = ovr;
+      document.getElementById('resultPosition').textContent = getPositionLabel(onbSelectedPosition);
+      document.getElementById('resultName').textContent = onbName;
+
+      const statLabels = { pac: 'СКР', sho: 'УДР', pas: 'ПАС', dri: 'ДРИ', def: 'ЗАЩ', phy: 'ФИЗ' };
+      document.getElementById('resultStats').innerHTML = Object.entries(statLabels).map(([key, label]) => {
+        const val = onbCalibStats[key] ?? 60;
+        const boosted = val > 60 ? ' boosted' : '';
+        return `<div class="stat-row"><span class="stat-label">${label}</span><span class="stat-value${boosted}">${val}</span></div>`;
+      }).join('');
+
+      document.getElementById('analyzingBlock').classList.add('hidden');
+      document.getElementById('resultBlock').classList.remove('hidden');
+      haptic('notification', 'success');
+    }, 1500);
+
+    document.getElementById('btnSaveAndEnter').onclick = async () => {
+      haptic('impact', 'medium');
+      const ok = await createPlayer(onbName, onbSelectedPosition, onbCalibStats);
+      if (ok) {
+        document.getElementById('onboarding').classList.remove('active');
+        document.getElementById('app').style.display = 'flex';
+        renderCard();
+        renderWorkouts();
+        haptic('notification', 'success');
+        showToast('Карточка создана! Добро пожаловать!');
+      }
+    };
+  }
+
+  // ============================================================
+  // WORKOUTS DATA
+  // ============================================================
+  const WORKOUTS = [
+    {
+      id: 'pac', title: 'Спринт-интервалы', duration: '15 мин',
+      desc: '5×30м ускорения с максимальной скоростью. Отдых 60 сек между подходами.',
+      reward: 2, stat: 'pac',
+      youtubeId: 'ZPZ0B1xK4tQ',
+      youtubeTitle: 'Скорость и дриблинг: тренировка'
+    },
+    {
+      id: 'sho', title: 'Удары по воротам', duration: '12 мин',
+      desc: '20 ударов с разных дистанций: 10 с правой, 10 с левой. Акцент на точность.',
+      reward: 2, stat: 'sho',
+      youtubeId: 'QDb5-cMIbjM',
+      youtubeTitle: 'Техника удара по воротам: разбор'
+    },
+    {
+      id: 'pas', title: 'Передачи в стенку', duration: '10 мин',
+      desc: '50 передач в стенку с чередованием ног. Следи за точностью и первым касанием.',
+      reward: 2, stat: 'pas',
+      youtubeId: 'oIpRuzvsU80',
+      youtubeTitle: 'Техника паса: точность и сила'
+    },
+    {
+      id: 'dri', title: 'Дриблинг "змейка"', duration: '10 мин',
+      desc: '10 минут ведения мяча между конусами. Смена направления каждые 2 минуты.',
+      reward: 2, stat: 'dri',
+      youtubeId: 'ZPZ0B1xK4tQ',
+      youtubeTitle: 'Дриблинг: контроль мяча и финты'
+    },
+    {
+      id: 'def', title: 'Защитная стойка', duration: '8 мин',
+      desc: '10×30 сек удержание позиции в низкой стойке. Отдых 30 сек.',
+      reward: 2, stat: 'def',
+      youtubeId: 'EcIrs7UzDFg',
+      youtubeTitle: 'Техника защиты: стойка и отбор'
+    },
+    {
+      id: 'phy', title: 'Круговая силовая', duration: '15 мин',
+      desc: '3 круга: 15 приседаний, 10 отжиманий, 20 выпадов. Отдых 60 сек между кругами.',
+      reward: 2, stat: 'phy',
+      youtubeId: 'EcIrs7UzDFg',
+      youtubeTitle: 'Функциональная подготовка футболиста'
+    },
+    {
+      id: 'gk_jump', title: 'Взрывной прыжок и реакция', duration: '12 мин',
+      desc: 'Прыжки через барьеры + реакция на бросок мяча. 8×30 сек с максимальной интенсивностью.',
+      reward: 2, stat: 'def',
+      youtubeId: 'Hy10XUls8xs',
+      youtubeTitle: 'Вратарская реакция и прыжок'
+    },
+    {
+      id: 'gk_throw', title: 'Выброс мяча на точность', duration: '10 мин',
+      desc: '20 бросков мяча в цель на расстоянии 15-25м. Работа над техникой и точностью.',
+      reward: 2, stat: 'pas',
+      youtubeId: 'lEDTwS2y1uc',
+      youtubeTitle: 'Техника выброса мяча вратарём'
+    }
+  ];
+
+  const COOLDOWN_MS = 3 * 60 * 60 * 1000;
+
+  function getCooldownRemaining(workoutId) {
+    const key = `cd_${workoutId}_${userId}`;
+    const last = localStorage.getItem(key);
+    if (!last) return 0;
+    const remaining = COOLDOWN_MS - (Date.now() - parseInt(last, 10));
+    return remaining > 0 ? remaining : 0;
+  }
+
+  function setCooldown(workoutId) {
+    localStorage.setItem(`cd_${workoutId}_${userId}`, String(Date.now()));
+  }
+
+  function formatTime(ms) {
+    const totalSec = Math.ceil(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return `${h}ч ${m}м`;
+    return `${m}м ${s}с`;
+  }
+
+  function renderWorkouts() {
+    const container = document.getElementById('workoutList');
+    container.innerHTML = WORKOUTS.map(w => {
+      const cdRemaining = getCooldownRemaining(w.id);
+      const onCooldown = cdRemaining > 0;
+      return `
+        <div class="workout-item ${onCooldown ? 'disabled' : ''}" data-workout-id="${w.id}">
+          <div class="workout-header">
+            <span class="workout-title">${w.title}</span>
+            <span class="workout-duration">${w.duration}</span>
+          </div>
+          <div class="workout-desc">${w.desc}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="workout-reward">+${w.reward} ${w.stat.toUpperCase()}</span>
+            <button class="btn-watch btn-watch-video" data-youtube-id="${w.youtubeId}" data-youtube-title="${w.youtubeTitle}">▶ Видео-разбор</button>
+          </div>
+          <div class="workout-meta">
+            ${onCooldown
+              ? `<span class="cooldown-badge">⏳ ${formatTime(cdRemaining)}</span>`
+              : `<button class="btn btn-sm btn-primary btn-start-workout" data-workout-id="${w.id}">Начать</button>`
+            }
+          </div>
+          <div class="workout-timer-container hidden" id="timer-container-${w.id}">
+            <div class="timer-display" id="timer-display-${w.id}">15</div>
+            <button class="btn btn-sm btn-gold btn-claim-reward hidden" id="claim-btn-${w.id}" data-workout-id="${w.id}">Забрать очки</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.btn-start-workout').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        haptic('impact', 'medium');
+        startWorkoutTimer(btn.dataset.workoutId);
+      });
+    });
+    container.querySelectorAll('.btn-claim-reward').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        haptic('impact', 'medium');
+        await claimReward(btn.dataset.workoutId);
+      });
+    });
+    container.querySelectorAll('.btn-watch-video').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        haptic('impact', 'light');
+        openVideoModal(btn.dataset.youtubeId, btn.dataset.youtubeTitle);
+      });
+    });
+  }
+
+  function startWorkoutTimer(workoutId) {
+    const container = document.getElementById(`timer-container-${workoutId}`);
+    const display = document.getElementById(`timer-display-${workoutId}`);
+    const claimBtn = document.getElementById(`claim-btn-${workoutId}`);
+    const item = container.closest('.workout-item');
+    if (!container || !display) return;
+
+    item.querySelector('.btn-start-workout')?.classList.add('hidden');
+    container.classList.remove('hidden');
+    claimBtn.classList.add('hidden');
+
+    let seconds = 15;
+    display.textContent = seconds;
+    if (activeWorkoutTimer) clearInterval(activeWorkoutTimer);
+
+    activeWorkoutTimer = setInterval(() => {
+      seconds--;
+      display.textContent = seconds >= 0 ? seconds : 0;
+      if (seconds <= 0) {
+        clearInterval(activeWorkoutTimer);
+        activeWorkoutTimer = null;
+        display.textContent = '✓';
+        claimBtn.classList.remove('hidden');
+        haptic('notification', 'success');
+      }
+    }, 1000);
+  }
+
+  async function claimReward(workoutId) {
+    const workout = WORKOUTS.find(w => w.id === workoutId);
+    if (!workout) return;
+    if (getCooldownRemaining(workoutId) > 0) {
+      showToast('Тренировка ещё на кулдауне');
+      renderWorkouts();
+      return;
+    }
+
+    const newStats = { ...playerData.stats };
+    newStats[workout.stat] = Math.min(99, (newStats[workout.stat] || 60) + workout.reward);
+    const newOvr = calcOvr(newStats);
+    const newCompleted = (playerData.workoutsCompleted || 0) + 1;
+
+    const ok = await savePlayer({ stats: newStats, ovr: newOvr, workoutsCompleted: newCompleted });
+    if (ok) {
+      playerData.stats = newStats;
+      playerData.ovr = newOvr;
+      playerData.workoutsCompleted = newCompleted;
+      setCooldown(workoutId);
+      haptic('notification', 'success');
+      showToast(`+${workout.reward} ${workout.stat.toUpperCase()}! OVR: ${newOvr}`);
+      renderCard();
+      renderWorkouts();
+      if (currentTab === 'leaderboard') loadLeaderboard();
+    } else {
+      showToast('Не удалось сохранить результат');
+    }
+  }
+
+  // ============================================================
+  // VIDEO MODAL
+  // ============================================================
+  let currentYouTubeUrl = '';
+
+  function openVideoModal(youtubeId, title) {
+    const modal = document.getElementById('videoModal');
+    const container = document.getElementById('videoContainer');
+    document.getElementById('videoModalTitle').textContent = title || 'Видео-разбор';
+    currentYouTubeUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
+    container.innerHTML = buildYouTubeEmbed(youtubeId);
+    modal.classList.add('active');
+  }
+
+  function closeVideoModal() {
+    document.getElementById('videoModal').classList.remove('active');
+    document.getElementById('videoContainer').innerHTML = '';
+    currentYouTubeUrl = '';
+  }
+
+  // ============================================================
+  // LEADERBOARD
+  // ============================================================
+  async function loadLeaderboard() {
+    const listEl = document.getElementById('leaderboardList');
+    listEl.innerHTML = '<div class="empty-leaderboard">Загрузка рейтинга...</div>';
+
+    try {
+      const q = query(collection(db, 'players'), orderBy('ovr', 'desc'), limit(50));
+      const snap = await getDocs(q);
+      const players = [];
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        players.push({ id: docSnap.id, name: d.name || 'Игрок', position: d.position || 'НАП', ovr: d.ovr || 60 });
+      });
+
+      let myRank = '—';
+      const myIndex = players.findIndex(p => p.id === userId);
+      if (myIndex >= 0) myRank = `#${myIndex + 1}`;
+      document.getElementById('yourRankBadge').textContent = `Твое место: ${myRank}`;
+
+      if (players.length === 0) {
+        listEl.innerHTML = '<div class="empty-leaderboard">Пока нет игроков. Стань первым!</div>';
+        return;
+      }
+
+      listEl.innerHTML = players.map((p, idx) => {
+        const rank = idx + 1;
+        const rankClass = rank <= 3 ? `top-${rank}` : '';
+        const isCurrent = p.id === userId;
+        return `
+          <div class="leaderboard-item ${isCurrent ? 'current-user' : ''}">
+            <span class="rank-number ${rankClass}">${rank}</span>
+            <div class="leaderboard-info">
+              <span class="leaderboard-name">${escapeHtml(p.name)}</span>
+              <span class="leaderboard-pos">${getPositionLabel(p.position)}</span>
+            </div>
+            <span class="leaderboard-ovr">${p.ovr}</span>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      console.error('Leaderboard error:', e);
+      listEl.innerHTML = '<div class="empty-leaderboard">Ошибка загрузки рейтинга</div>';
+    }
+  }
+
+  // ============================================================
+  // PHOTO UPLOAD
+  // ============================================================
+  function handlePhotoUpload(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const size = 200;
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+        const base64 = canvas.toDataURL('image/jpeg', 0.7);
+        playerData.photoBase64 = base64;
+        savePlayer({ photoBase64: base64 }).then(ok => {
+          if (ok) { renderCard(); haptic('notification', 'success'); showToast('Фото обновлено'); }
+        });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ============================================================
+  // DOWNLOAD CARD
+  // ============================================================
+  async function downloadCard() {
+    const cardEl = document.getElementById('fcCard');
+    try {
+      haptic('impact', 'medium');
+      const canvas = await html2canvas(cardEl, {
+        backgroundColor: null, scale: 2, useCORS: true, allowTaint: false, logging: false
+      });
+      const link = document.createElement('a');
+      link.download = `fc_card_${playerData.name.replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('Карточка скачана');
+    } catch (e) {
+      console.error('Download error:', e);
+      showToast('Ошибка скачивания');
+    }
+  }
+
+  // ============================================================
+  // TAB SWITCHING
+  // ============================================================
+  function switchTab(tabName) {
+    currentTab = tabName;
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`tab-${tabName}`)?.classList.add('active');
+    document.querySelector(`.nav-item[data-tab="${tabName}"]`)?.classList.add('active');
+    if (tabName === 'leaderboard') loadLeaderboard();
+    if (tabName === 'workouts') renderWorkouts();
+  }
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  async function init() {
+    const exists = await loadPlayer();
+
+    if (!exists) {
+      document.getElementById('loader').style.display = 'none';
+      showOnboarding();
+    } else {
+      renderCard();
+      renderWorkouts();
+      document.getElementById('loader').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+      }, 300);
+    }
+
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.addEventListener('click', () => {
+        haptic('impact', 'light');
+        switchTab(el.dataset.tab);
+      });
+    });
+
+    document.getElementById('btnSaveName').addEventListener('click', async () => {
+      const newName = document.getElementById('inputName').value.trim();
+      if (!newName) { showToast('Введи имя'); return; }
+      haptic('impact', 'medium');
+      if (await savePlayer({ name: newName })) {
+        playerData.name = newName;
+        renderCard();
+        showToast('Имя обновлено');
+      }
+    });
+
+    document.getElementById('btnSavePosition').addEventListener('click', async () => {
+      const newPos = document.getElementById('selectPosition').value;
+      haptic('impact', 'medium');
+      if (await savePlayer({ position: newPos })) {
+        playerData.position = newPos;
+        renderCard();
+        showToast('Позиция обновлена');
+      }
+    });
+
+    document.getElementById('btnUploadPhoto').addEventListener('click', () => {
+      haptic('impact', 'medium');
+      document.getElementById('fileInput').click();
+    });
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) handlePhotoUpload(file);
+      e.target.value = '';
+    });
+
+    document.getElementById('btnDownloadCard').addEventListener('click', downloadCard);
+
+    document.getElementById('btnInvite').addEventListener('click', () => {
+      haptic('impact', 'medium');
+      if (tg?.openTelegramLink) {
+        const botUsername = 'YOUR_BOT';
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent('https://t.me/' + botUsername + '?startapp=' + userId)}&text=${encodeURIComponent('Присоединяйся к футбольному рейтингу!')}`;
+        tg.openTelegramLink(shareUrl);
+      } else {
+        showToast('Приглашение доступно в Telegram');
+      }
+    });
+
+    document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
+    document.getElementById('btnCloseVideo').addEventListener('click', closeVideoModal);
+    document.getElementById('btnOpenYouTube').addEventListener('click', () => {
+      if (currentYouTubeUrl) {
+        if (tg?.openLink) tg.openLink(currentYouTubeUrl);
+        else window.open(currentYouTubeUrl, '_blank');
+      }
+    });
+    document.getElementById('videoModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('videoModal')) closeVideoModal();
+    });
+
+    setInterval(() => {
+      if (currentTab === 'workouts') renderWorkouts();
+    }, 30000);
+  }
+
+  init();
+</script>
+</body>
+</html>
